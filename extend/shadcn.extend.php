@@ -23,6 +23,10 @@ if (G5_SHADCN_ENABLE && shadcn_in_scope()) {
     shadcn_inject_head();
 }
 
+if (G5_SHADCN_ENABLE && shadcn_is_shop()) {
+    shadcn_shop_hide_device_link();
+}
+
 /**
  * 적용 대상 페이지인지 판별한다.
  * extend 로드 시점이라 _INDEX_ 는 아직 없다 → SCRIPT_NAME 으로 판별한다.
@@ -49,6 +53,33 @@ function shadcn_in_scope()
     }
 
     return $scope = false;
+}
+
+/**
+ * 쇼핑몰(/shop/) 페이지인지 판별한다. shadcn_in_scope() 와 별개의 보조 스코프.
+ */
+function shadcn_is_shop()
+{
+    $script = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '';
+    return (bool) preg_match('~/shop/~', $script);
+}
+
+/**
+ * 쇼핑몰 푸터의 '모바일버전' 전환 링크를 숨긴다.
+ * G5_SET_DEVICE='pc' 라 모바일 트리로 갈 수 없어 죽은 링크가 됐다
+ * (theme/basic/shop/shop.tail.php:26 이 조건 없이 출력한다).
+ * 쇼핑몰에는 shadcn.css 가 로드되지 않으므로(default_shop.css 유지) 테마
+ * head.sub.php:48 이 <head> 안에서 그대로 echo 하는 $config['cf_add_meta'] 에
+ * 한 줄짜리 <style> 을 얹는다 — 코어·테마 파일은 건드리지 않는다.
+ * get_device_change_url()(lib/common.lib.php:4319)은 PC 트리에서 현재 URL 에
+ * device=mobile 을 붙여 반환하므로 href 부분일치로 잡는다.
+ */
+function shadcn_shop_hide_device_link()
+{
+    global $config;
+
+    $css = '<style>#ft a[href*="device=mobile"]{display:none}</style>' . PHP_EOL;
+    $config['cf_add_meta'] = (isset($config['cf_add_meta']) ? $config['cf_add_meta'] : '') . $css;
 }
 
 /**
