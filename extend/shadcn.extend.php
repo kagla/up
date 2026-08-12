@@ -17,6 +17,7 @@ define('G5_SHADCN_ENABLE', true);
 
 if (G5_SHADCN_ENABLE && shadcn_in_scope()) {
     add_event('tail_sub', 'shadcn_theme_toggle');
+    add_event('tail_sub', 'shadcn_se2_dark');
     add_replace('head_css_url',        'shadcn_head_css_url',  G5_HOOK_DEFAULT_PRIORITY, 2);
     add_replace('html_process_css_files', 'shadcn_filter_css', G5_HOOK_DEFAULT_PRIORITY, 1);
 
@@ -152,6 +153,104 @@ function shadcn_filter_css($links)
     }
 
     return $kept;
+}
+
+/**
+ * smarteditor2 를 다크모드에 동기화한다.
+ *
+ * 에디터 전체(툴바 포함)는 HuskyEZCreator.createInIFrame 이 만드는
+ * SmartEditor2Skin.html iframe 안에 있고, 본문 캔버스는 그 안의
+ * iframe#se2_iframe (smart_editor2_inputarea.html) 이다. 부모 CSS 는 어느
+ * 쪽에도 닿지 않으므로, 같은 출처임을 이용해 두 문서에 <style> 을 주입하고
+ * 부모 <html.dark> 상태를 각 문서의 html.se2dark 클래스로 복제한다.
+ *
+ *  - 툴바 크롬: 아이콘이 전부 스프라이트 이미지(btn_set.png 등)라 색상만으로는
+ *    다크화가 불가능하다 → #smart_editor2 전체에 invert(1) hue-rotate(180deg).
+ *  - 본문 iframe·색상 견본(팔레트 스와치)·사진 등 "실제 색이 의미인" 요소는
+ *    같은 필터를 한 번 더 걸어 원래 색으로 되돌린다(invert 2회 = 항등).
+ *  - 본문 캔버스는 별도 주입 CSS 로 페이지 토큰과 같은 색(#0a0a0a/#fafafa
+ *    ≈ oklch 0.145/0.985)을 칠한다. 토글 전환은 MutationObserver 로 따라간다.
+ *
+ * 플러그인(plugin/editor/smarteditor2) 파일은 건드리지 않는다.
+ */
+function shadcn_se2_dark()
+{
+    global $config;
+
+    if (!shadcn_in_scope()) return;
+    if (!isset($config['cf_editor']) || $config['cf_editor'] !== 'smarteditor2') return;
+    ?>
+<script>
+(function () {
+    var root = document.documentElement;
+
+    // 주의: 스킨 문서에는 color-scheme:dark 를 주지 않는다 — 네이티브 위젯
+    // (textarea 등)이 어두워진 채 invert 되어 도로 밝아진다. 배경을 명시해
+    // 칠하므로 color-scheme 불일치로 iframe 이 흰색 불투명이 되는 일도 없다.
+    var SKIN_CSS =
+        'html.se2dark{background:#0a0a0a}' +
+        'html.se2dark body{background:#0a0a0a}' +
+        'html.se2dark #smart_editor2{filter:invert(1) hue-rotate(180deg)}' +
+        'html.se2dark #se2_iframe,' +
+        'html.se2dark #smart_editor2 img,' +
+        'html.se2dark .se2_pick_color li button span,' +
+        'html.se2dark .selected_color,' +
+        'html.se2dark .husky_se2m_cp_preview,' +
+        'html.se2dark .se2_pre_color button,' +
+        'html.se2dark .se2_background li button' +
+        '{filter:invert(1) hue-rotate(180deg)}';
+
+    var INPUT_CSS =
+        'html.se2dark{color-scheme:dark;background:#0a0a0a}' +
+        'html.se2dark body{background:#0a0a0a;color:#fafafa}';
+
+    function ensure(doc, css) {
+        if (!doc || !doc.documentElement) return;
+        if (!doc.getElementById('shadcn_se2_dark')) {
+            var st = doc.createElement('style');
+            st.id = 'shadcn_se2_dark';
+            st.textContent = css;
+            (doc.head || doc.documentElement).appendChild(st);
+        }
+        doc.documentElement.classList.toggle('se2dark', root.classList.contains('dark'));
+    }
+
+    function sync() {
+        var frames = document.querySelectorAll('iframe[src*="SmartEditor2Skin"]');
+        for (var i = 0; i < frames.length; i++) {
+            var sdoc = null;
+            try { sdoc = frames[i].contentDocument; } catch (e) {}
+            if (!sdoc) continue;
+            ensure(sdoc, SKIN_CSS);
+            var inner = sdoc.getElementById('se2_iframe');
+            if (inner) {
+                var idoc = null;
+                try { idoc = inner.contentDocument; } catch (e) {}
+                if (idoc) ensure(idoc, INPUT_CSS);
+            }
+        }
+    }
+
+    function start() {
+        if (!document.querySelector('textarea.smarteditor2')) return;
+        // 에디터·본문 iframe 은 비동기로 생기고 inputarea 문서는 교체되기도
+        // 한다 → 초기 40초는 폴링으로 주입하고, 이후엔 토글 관찰자만 남긴다.
+        var n = 0;
+        var t = setInterval(function () {
+            sync();
+            if (++n >= 100) clearInterval(t);
+        }, 400);
+        new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start);
+    } else {
+        start();
+    }
+})();
+</script>
+    <?php
 }
 
 /**

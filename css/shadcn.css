@@ -792,8 +792,42 @@ body > #g5_theme_toggle { position: fixed; top: 1rem; right: 1rem; z-index: 80; 
 /* ---------- 13-2. bbs 확장: 글쓰기·통합검색·새글·FAQ·접속자 ----------
    DOM 근거: 코어 스킨 skin/{board,search,new,faq,connect}/basic/*.skin.php */
 
-/* 글쓰기 (bbs/write.php — 이 사이트는 에디터 미사용, 일반 textarea) */
+/* 글쓰기 (bbs/write.php — cf_editor=smarteditor2, 설치 기본값)
+   에디터 본체(툴바 포함)는 SmartEditor2Skin.html iframe 안이라 여기 CSS 가
+   닿지 않는다 → extend/shadcn.extend.php 의 shadcn_se2_dark() 가 JS 로
+   iframe 문서에 스타일을 주입한다. 부모 문서에 남는 크롬은 아래 둘뿐:
+   단축키 일람 버튼(.btn_cke_sc)과 단축키 레이어(.cke_sc_def, shortcut.html) */
 #bo_w { border-top: 1px solid var(--border); padding-top: 1.25rem; }
+.cke_sc { margin-bottom: 0.5rem; text-align: right; }
+.btn_cke_sc {
+  display: inline-flex; align-items: center; height: 1.875rem; padding-inline: 0.75rem;
+  background: var(--card); color: var(--muted-foreground);
+  border: 1px solid var(--input); border-radius: calc(var(--radius) - 2px);
+  font-size: 0.8125rem;
+}
+.btn_cke_sc:hover { background: var(--accent); color: var(--accent-foreground); }
+.cke_sc_def {
+  margin-bottom: 0.5rem; padding: 1rem;
+  background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 0.8125rem; text-align: left;
+}
+.cke_sc_def dl {
+  display: grid; grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem; margin-bottom: 0.5rem;
+}
+@media (min-width: 769px) {
+  .cke_sc_def dl { grid-template-columns: max-content 1fr max-content 1fr; }
+}
+.cke_sc_def dt { font-weight: 600; }
+.cke_sc_def dd { margin: 0; color: var(--muted-foreground); }
+.btn_cke_sc_close {
+  display: inline-flex; align-items: center; height: 1.75rem; padding-inline: 0.75rem;
+  background: var(--secondary); color: var(--secondary-foreground);
+  border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px);
+  font-size: 0.75rem;
+}
+.btn_cke_sc_close:hover { background: var(--accent); }
 .write_div { margin-bottom: 0.875rem; }
 .bo_w_info { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; }
 .bo_v_option { display: flex; flex-wrap: wrap; gap: 0.375rem 1.25rem; }
