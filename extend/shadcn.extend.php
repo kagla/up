@@ -47,6 +47,20 @@ function shadcn_in_scope()
     // 게시판
     if ($base === 'board.php') return $scope = true;
 
+    // bbs 화이트리스트 — shadcn.css 에 페이지별 CSS(§12·§13-2)를 갖추고
+    // 실제 렌더링을 검증한 페이지만 추가한다. 스킨 CSS(style.css)가 제거되므로
+    // 여기 추가 = 그 페이지 DOM 전체를 shadcn.css 가 책임진다는 뜻이다.
+    // 검증 없이 정규식으로 /bbs/ 전체를 열지 말 것.
+    $bbs_whitelist = array(
+        'login.php',
+        'register.php', 'register_form.php',
+        'write.php', 'password_lost.php',
+        'search.php', 'new.php', 'faq.php', 'current_connect.php',
+    );
+    if (preg_match('~/bbs/[^/]+$~', $script) && in_array($base, $bbs_whitelist, true)) {
+        return $scope = true;
+    }
+
     // 사이트 메인
     if ($base === 'index.php' && !preg_match('~/(bbs|plugin|extend)/~', $script)) {
         return $scope = true;

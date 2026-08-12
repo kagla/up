@@ -304,6 +304,9 @@ textarea { min-height: 5rem; resize: vertical; }
 ::placeholder { color: var(--muted-foreground); }
 input[type=checkbox], input[type=radio] { accent-color: var(--primary); width: 1rem; height: 1rem; min-height: 0; }
 .chk_box label, .selec_chk label { display: inline-flex; align-items: center; gap: 0.4375rem; font-size: 0.875rem; }
+/* 스킨들이 커스텀 체크박스 용도로 넣는 빈 <span></span> — 네이티브 체크박스를
+   그대로 쓰므로 gap 만 벌리는 유령 요소가 된다 → 제거 */
+.chk_box label span:empty, .fregister_agree label span:empty { display: none; }
 .required, .frm_input.required { background-image: none; }
 
 /* ---------- 6. 버튼 ---------- */
@@ -581,24 +584,140 @@ a.btn_b01, a.btn_b02, a.btn_admin, input[type=submit], button[type=submit] {
 #ol_after_pf_img img { border-radius: 999px; }
 .ol_btn, #ol_after a.btn_b01, #ol_after a.btn_b02 { font-size: 0.8125rem; }
 
-/* ---------- 12. 회원/로그인 카드 (bbs 스코프 외지만 무해) ---------- */
-.mbskin, #login_fs {
-  max-width: 26rem; margin: 2rem auto; padding: 1.75rem;
+/* ---------- 12. 회원 페이지 (bbs/login·register·register_form·password_lost) ----------
+   이 사이트의 회원 스킨은 테마가 아니라 코어 /skin/member/basic/ 이다.
+   DOM 근거: skin/member/basic/{login,register,register_form,password_lost}.skin.php */
+
+/* 로그인: head.sub.php 만 포함하는 단독 페이지(#hd/#ft 없음).
+   body 가 flex 컬럼이므로 margin:auto 로 수직·수평 중앙 배치 */
+.mbskin { width: 100%; max-width: 26rem; margin: auto; padding: 2rem 1rem; }
+.mbskin_box {
+  padding: 1.75rem;
   background: var(--card); color: var(--card-foreground);
   border: 1px solid var(--border); border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
 }
-.mbskin h1, .mbskin h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.25rem; text-align: center; }
-#login_fs .frm_input { margin-bottom: 0.5rem; }
-#login_fs .btn_submit { width: 100%; margin-top: 0.75rem; }
-.mb_log_cate { display: flex; gap: 0.5rem; margin-top: 1rem; }
-.mb_log_cate li { flex: 1; }
-.mb_log_cate a {
-  display: flex; align-items: center; justify-content: center; height: 2.25rem;
-  border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px);
-  font-size: 0.8125rem; color: var(--muted-foreground);
+.mbskin h1 { font-size: 1.375rem; font-weight: 600; text-align: center; margin-bottom: 0.375rem; }
+/* h2 "로그인" 은 h1 과 중복 → 스크린리더 전용으로 */
+.mb_log_cate h2 {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
 }
-.mb_log_cate a:hover { background: var(--accent); color: var(--accent-foreground); text-decoration: none; }
+.mb_log_cate { display: flex; justify-content: center; margin-bottom: 1.5rem; }
+.mb_log_cate .join { font-size: 0.8125rem; color: var(--muted-foreground); }
+.mb_log_cate .join:hover { color: var(--foreground); }
+#login_fs { display: flex; flex-direction: column; gap: 0.625rem; }
+#login_fs .btn_submit { width: 100%; margin-top: 0.375rem; }
+#login_info {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  margin-top: 0.25rem; font-size: 0.8125rem; color: var(--muted-foreground);
+}
+.login_if_auto { display: flex; align-items: center; }
+.login_if_lpl a { color: var(--muted-foreground); }
+.login_if_lpl a:hover { color: var(--foreground); }
+/* 헤더 없는 단독 페이지에선 토글 버튼이 body 직속으로 붙는다 → 우상단 고정 */
+body > #g5_theme_toggle { position: fixed; top: 1rem; right: 1rem; z-index: 80; }
+
+/* 회원가입 약관 (bbs/register.php) + 회원가입 폼 (bbs/register_form.php) 공통 래퍼 */
+.register { max-width: 48rem; }
+.register .btn_confirm { justify-content: center; }
+.register .chk_li { font-size: 0.875rem; }
+
+/* 약관 동의 */
+#fregister > form > p, #fregister p:first-of-type {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1rem; margin-bottom: 1rem;
+  background: var(--muted); color: var(--muted-foreground);
+  border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px);
+  font-size: 0.8125rem;
+}
+#fregister section {
+  position: relative; margin-bottom: 1rem; overflow: hidden;
+  background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+#fregister section h2 {
+  padding: 0.875rem 3.5rem 0.875rem 1.25rem;
+  font-size: 0.9375rem; font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+#fregister section textarea {
+  display: block; width: 100%; min-height: 9rem; padding: 1rem 1.25rem;
+  border: 0; border-radius: 0; background: transparent;
+  color: var(--muted-foreground); font-size: 0.8125rem;
+}
+#fregister section textarea:focus { box-shadow: none; }
+.fregister_terms > div { padding: 1rem 1.25rem; overflow-x: auto; }
+.fregister_terms table { font-size: 0.8125rem; }
+.fregister_terms table th {
+  padding: 0.5rem 0.75rem; text-align: center; font-weight: 500;
+  background: var(--muted); color: var(--muted-foreground);
+  border: 1px solid var(--border);
+}
+.fregister_terms table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); }
+/* 섹션별 동의 체크박스: 헤더 우상단 (원 스킨과 같은 배치) */
+#fregister section .fregister_agree { position: absolute; top: 0.9375rem; right: 1.25rem; }
+.fregister_agree label { display: inline-flex; align-items: center; }
+#fregister_chkall {
+  display: flex; align-items: center; padding: 0.875rem 1.25rem; margin-bottom: 1rem;
+  background: var(--muted); border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: 0.875rem; font-weight: 500;
+}
+#fregister_chkall label { display: inline-flex; align-items: center; gap: 0.5rem; }
+
+/* 회원정보 입력 폼 */
+.register_form_inner {
+  margin-bottom: 1rem;
+  background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.register_form_inner h2 {
+  padding: 0.875rem 1.25rem; font-size: 0.9375rem; font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+.register_form_inner ul { padding: 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.register_form_inner li { grid-column: 1 / -1; position: relative; min-width: 0; }
+.register_form_inner li.half_input { grid-column: auto / span 1; }
+.register_form_inner label { display: block; margin-bottom: 0.375rem; font-size: 0.8125rem; font-weight: 500; }
+.register_form_inner label.inline, .register_form_inner .chk_box label {
+  display: inline-flex; align-items: center; margin-bottom: 0;
+}
+#msg_mb_id, #msg_mb_nick, #msg_mb_email {
+  display: block; margin-top: 0.25rem; font-size: 0.75rem; color: var(--muted-foreground);
+}
+.tooltip_icon { padding: 0; margin-left: 0.125rem; color: var(--muted-foreground); }
+.tooltip_icon:hover { color: var(--foreground); }
+.tooltip {
+  display: none; position: absolute; left: 0; top: 100%; z-index: 90;
+  max-width: 20rem; margin-top: 0.25rem; padding: 0.5rem 0.75rem;
+  background: var(--popover); color: var(--popover-foreground);
+  border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px);
+  box-shadow: var(--shadow-md);
+  font-size: 0.75rem; font-weight: 400; line-height: 1.5;
+}
+.btn_frmline {
+  display: inline-flex; align-items: center; height: 2.25rem; padding-inline: 0.875rem;
+  background: var(--secondary); color: var(--secondary-foreground);
+  border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px);
+  font-size: 0.8125rem;
+}
+.btn_frmline:hover { background: var(--accent); }
+
+/* 회원정보 찾기 (bbs/password_lost.php) */
+#find_info { max-width: 28rem; }
+#find_info .new_win_con {
+  padding: 1.5rem;
+  background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+#find_info h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
+#info_fs p { font-size: 0.8125rem; color: var(--muted-foreground); margin-bottom: 0.75rem; }
+#info_fs .frm_input { margin-bottom: 0.75rem; }
+#find_info .win_btn { margin-top: 1rem; }
+#find_info .btn_submit { width: 100%; }
 
 /* ---------- 13. 게시물 보기 ---------- */
 #bo_v { border-top: 1px solid var(--border); padding-top: 1.5rem; }
@@ -669,6 +788,175 @@ a.btn_b01, a.btn_b02, a.btn_admin, input[type=submit], button[type=submit] {
 }
 #captcha_mp3:hover, #captcha_reload:hover { background: var(--accent); }
 #captcha_info { width: 100%; font-size: 0.75rem; color: var(--muted-foreground); }
+
+/* ---------- 13-2. bbs 확장: 글쓰기·통합검색·새글·FAQ·접속자 ----------
+   DOM 근거: 코어 스킨 skin/{board,search,new,faq,connect}/basic/*.skin.php */
+
+/* 글쓰기 (bbs/write.php — 이 사이트는 에디터 미사용, 일반 textarea) */
+#bo_w { border-top: 1px solid var(--border); padding-top: 1.25rem; }
+.write_div { margin-bottom: 0.875rem; }
+.bo_w_info { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; }
+.bo_v_option { display: flex; flex-wrap: wrap; gap: 0.375rem 1.25rem; }
+.bo_w_link, .file_wr { display: flex; align-items: center; gap: 0.375rem; }
+.file_wr { margin-bottom: 0; }
+.bo_w_link label, .file_wr .lb_icon {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 2.25rem; height: 2.25rem; margin: 0;
+  background: var(--muted); color: var(--muted-foreground);
+  border: 1px solid var(--input); border-radius: calc(var(--radius) - 2px);
+}
+input[type=file] {
+  width: 100%; min-height: 2.25rem; padding: 0.3125rem 0.5rem;
+  border: 1px dashed var(--input); border-radius: calc(var(--radius) - 2px);
+  color: var(--muted-foreground); font-size: 0.8125rem; background: transparent;
+}
+input[type=file]::file-selector-button {
+  margin-right: 0.625rem; padding: 0.25rem 0.75rem; border: 0;
+  border-radius: calc(var(--radius) - 4px);
+  background: var(--secondary); color: var(--secondary-foreground);
+  font: inherit; font-size: 0.8125rem; cursor: pointer;
+}
+
+/* 검색/필터 바 (search.php · new.php · faq.php 공용) */
+#sch_res_detail, #new_sch, #faq_sch {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+  padding: 1rem; margin-bottom: 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  /* fieldset 기본값 min-inline-size:min-content + size=40 입력의 고유폭이
+     좁은 화면에서 가로 오버플로를 만든다 → 축소 허용 */
+  min-width: 0;
+}
+#new_sch form, #faq_sch form {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; flex: 1; min-width: 0;
+}
+#sch_res_detail select, #new_sch select { width: auto; min-width: 7rem; flex: none; }
+.sch_wr { display: flex; gap: 0.375rem; flex: 1 1 14rem; min-width: 0; }
+/* basis 0: size=40 같은 HTML 속성이 만드는 고유폭을 무시하고 남는 공간만 차지 */
+.sch_wr .frm_input { flex: 1 1 0%; width: auto; min-width: 0; }
+#new_sch .frm_input, #faq_sch .frm_input { flex: 1 1 8rem; width: auto; min-width: 0; }
+#new_sch p { flex-basis: 100%; margin: 0; font-size: 0.75rem; color: var(--muted-foreground); }
+#faq_sch .sch_tit { font-size: 0.875rem; font-weight: 600; }
+/* AND/OR 세그먼트 컨트롤 */
+.switch_field {
+  position: relative; display: inline-flex; overflow: hidden;
+  border: 1px solid var(--input); border-radius: calc(var(--radius) - 2px);
+}
+.switch_field input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.switch_field label {
+  padding: 0.375rem 0.875rem; font-size: 0.8125rem; line-height: 1.4;
+  color: var(--muted-foreground); cursor: pointer;
+}
+.switch_field label:last-of-type { border-left: 1px solid var(--input); }
+.switch_field input:checked + label { background: var(--primary); color: var(--primary-foreground); }
+.switch_field input:focus-visible + label { outline: 2px solid var(--ring); outline-offset: -2px; }
+
+/* 통합검색 결과 (bbs/search.php) */
+#sch_res_ov { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.375rem 1rem; margin-bottom: 1rem; }
+#sch_res_ov h2 { font-size: 1rem; font-weight: 600; }
+#sch_res_ov ul { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.8125rem; color: var(--muted-foreground); }
+#sch_res_board { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 1.25rem; }
+#sch_res_board a {
+  display: inline-flex; align-items: center; height: 1.875rem; padding-inline: 0.75rem;
+  border: 1px solid var(--border); border-radius: 999px;
+  font-size: 0.8125rem; color: var(--muted-foreground);
+}
+#sch_res_board a:hover, #sch_res_board a.sch_on {
+  background: var(--primary); color: var(--primary-foreground);
+  border-color: var(--primary); text-decoration: none;
+}
+.search_board_result {
+  position: relative; margin-bottom: 1rem; padding: 1.25rem;
+  background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.search_board_result > h2 { font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.25rem; padding-right: 4rem; }
+.search_board_result .sch_more { position: absolute; top: 1.25rem; right: 1.25rem; font-size: 0.75rem; color: var(--muted-foreground); }
+.search_board_result .sch_more:hover { color: var(--foreground); }
+.search_board_result li { padding: 0.75rem 0; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+.search_board_result li:last-child { border-bottom: 0; padding-bottom: 0; }
+.search_board_result .sch_tit { display: flex; align-items: center; gap: 0.375rem; }
+.sch_res_title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.sch_tit .pop_a { flex: none; font-size: 0.75rem; color: var(--muted-foreground); }
+.cmt_def { color: var(--muted-foreground); margin-right: 0.25rem; }
+.search_board_result li p { margin: 0.25rem 0; font-size: 0.8125rem; color: var(--muted-foreground); overflow-wrap: anywhere; }
+.sch_info { font-size: 0.75rem; color: var(--muted-foreground); }
+.sch_datetime { margin-left: 0.625rem; }
+/* 검색어 하이라이트 (lib search_font 가 <b class=sch_word> 로 감싼다) */
+.sch_word { background: color-mix(in oklab, var(--primary) 14%, transparent); font-weight: 600; border-radius: 2px; }
+
+/* 새글 (bbs/new.php — 표 자체는 §7 tbl_head01) */
+.tbl_head01 .td_group, .tbl_head01 .td_board { text-align: center; white-space: nowrap; }
+.tbl_head01 .td_group a, .tbl_head01 .td_board a { color: var(--muted-foreground); }
+.new_tit { font-weight: 500; }
+.admin_new_btn { display: flex; justify-content: flex-end; margin-bottom: 0.625rem; }
+
+/* FAQ (bbs/faq.php) */
+#bo_cate > h2 {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+/* faq 스킨은 활성 분류를 class 가 아니라 id=bo_cate_on 으로 찍는다 */
+#bo_cate_ul #bo_cate_on {
+  background: var(--primary); color: var(--primary-foreground); border-color: var(--primary);
+}
+#faq_con > h2 {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+#faq_con ol { display: flex; flex-direction: column; gap: 0.5rem; }
+#faq_con li {
+  background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+}
+#faq_con h3 {
+  display: flex; align-items: center; gap: 0.625rem; padding: 0.875rem 1rem;
+  font-size: 0.9375rem; font-weight: 500;
+}
+#faq_con h3 .tit_bg {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 1.5rem; height: 1.5rem; border-radius: 999px;
+  background: var(--secondary); color: var(--secondary-foreground);
+  font-size: 0.75rem; font-weight: 700;
+}
+#faq_con h3 a { flex: 1; min-width: 0; }
+#faq_con .tit_btn {
+  flex: none; margin-left: auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 1.75rem; height: 1.75rem; border-radius: calc(var(--radius) - 4px);
+  color: var(--muted-foreground);
+}
+#faq_con .tit_btn:hover { background: var(--accent); color: var(--accent-foreground); }
+#faq_con h3.faq_li_open { background: var(--muted); border-bottom: 1px solid var(--border); }
+#faq_con .con_inner { display: none; padding: 1rem; font-size: 0.875rem; line-height: 1.7; }
+#faq_con .closer_btn {
+  display: flex; align-items: center; justify-content: center; margin: 0.75rem 0 0 auto;
+  width: 1.75rem; height: 1.75rem; border-radius: calc(var(--radius) - 4px);
+  border: 1px solid var(--input); color: var(--muted-foreground);
+}
+#faq_con .closer_btn:hover { background: var(--accent); color: var(--accent-foreground); }
+
+/* 현재접속자 (bbs/current_connect.php) */
+#current_connect { max-width: 44rem; }
+#current_connect li {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.625rem 0.25rem; border-bottom: 1px solid var(--border);
+}
+#current_connect .crt_num {
+  flex: none; min-width: 2.25rem; text-align: center;
+  font-size: 0.75rem; color: var(--muted-foreground); font-variant-numeric: tabular-nums;
+}
+#current_connect .crt_profile { flex: none; }
+#current_connect .crt_profile img {
+  width: 2rem; height: 2rem; border-radius: 999px; object-fit: cover;
+  border: 1px solid var(--border); background: var(--muted);
+}
+#current_connect .crt_info { display: flex; flex-direction: column; min-width: 0; }
+#current_connect .crt_name { font-size: 0.875rem; font-weight: 500; }
+#current_connect .crt_lct {
+  font-size: 0.75rem; color: var(--muted-foreground);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 
 /* ---------- 14. 푸터 ---------- */
 #ft {
@@ -794,6 +1082,16 @@ a.btn_b01, a.btn_b02, a.btn_admin, input[type=submit], button[type=submit] {
   #ft_wr { grid-template-columns: 1fr; gap: 1.5rem; }
   .bo_sch { top: 4rem; }
   #bo_v_info { align-items: flex-start; flex-direction: column; }
+
+  /* bbs 확장 페이지 */
+  .register_form_inner ul { grid-template-columns: 1fr; }
+  .register_form_inner li.half_input { grid-column: 1 / -1; }
+  .bo_w_info { grid-template-columns: 1fr; }
+  /* 새글(new.php) 카드 변환: 그룹·게시판 셀을 메타 줄로 */
+  .tbl_head01 .td_group, .tbl_head01 .td_board {
+    display: inline-block; width: auto; margin-right: 0.75rem;
+    font-size: 0.75rem; color: var(--muted-foreground);
+  }
 }
 
 @media (max-width: 480px) {
