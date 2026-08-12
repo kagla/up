@@ -426,6 +426,17 @@ a.btn_b01, a.btn_b02, input[type=submit], button[type=submit] {
   padding: 2.5rem 1rem !important; text-align: center; color: var(--muted-foreground);
 }
 
+/* tbl_head02: 행 머리글(th scope=row)형 정보 표 — profile.php 등이 쓴다.
+   th 를 tbl_head01 처럼 muted 배경으로 칠하면 4열 표에서 체크무늬가 되어
+   기각 — 배경 없이 글자색으로만 라벨/값을 가른다 */
+.tbl_head02 caption { display: none; }
+.tbl_head02 th {
+  padding: 0.625rem 0.75rem; text-align: left; font-weight: 500;
+  color: var(--muted-foreground); white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+.tbl_head02 td { padding: 0.625rem 0.75rem; border-bottom: 1px solid var(--border); }
+
 .tbl_frm01 { width: 100%; font-size: 0.875rem; }
 .tbl_frm01 th {
   width: 8.75rem; padding: 0.625rem 0.75rem; text-align: left; vertical-align: middle;
@@ -810,6 +821,36 @@ body > #g5_theme_toggle { position: fixed; top: 1rem; right: 1rem; z-index: 80; 
 #find_info .win_btn { margin-top: 1rem; }
 #find_info .btn_submit { width: 100%; }
 
+/* 비밀번호 확인 (bbs/member_confirm.php #mb_confirm · bbs/password.php #pw_confirm)
+   — login.php 와 같은 head.sub.php 단독 레이아웃이지만 스킨에 .mbskin_box
+   래퍼가 없다 → 마크업을 못 고치므로 .mbskin 컨테이너 자체를 카드로 만든다.
+   (내부에 가상 래퍼를 그리는 대안은 padding 이중 계산만 늘어 기각) */
+#mb_confirm, #pw_confirm {
+  padding: 1.75rem;
+  background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+#mb_confirm > p, #pw_confirm > p {
+  margin-bottom: 1.25rem; text-align: center;
+  font-size: 0.8125rem; color: var(--muted-foreground); line-height: 1.6;
+}
+#mb_confirm > p strong, #pw_confirm > p strong {
+  display: block; margin-bottom: 0.375rem;
+  font-size: 0.875rem; font-weight: 600; color: var(--foreground);
+}
+#mb_confirm fieldset, #pw_confirm fieldset { display: flex; flex-direction: column; gap: 0.625rem; }
+/* 회원아이디: 수정 불가 정보 → disabled input 모양(muted 박스)으로.
+   .confirm_id(라벨)·#mb_confirm_id(값)가 형제 span 이라 한 박스로 못 묶는다 */
+#mb_confirm .confirm_id { margin-bottom: -0.25rem; font-size: 0.8125rem; font-weight: 500; }
+#mb_confirm_id {
+  display: block; min-height: 2.25rem; padding: 0.4375rem 0.75rem;
+  background: var(--muted); color: var(--muted-foreground);
+  border: 1px solid var(--input); border-radius: calc(var(--radius) - 2px);
+  font-size: 0.875rem;
+}
+#mb_confirm .btn_submit, #pw_confirm .btn_submit { width: 100%; margin-top: 0.375rem; }
+
 /* ---------- 13. 게시물 보기 ---------- */
 #bo_v { border-top: 1px solid var(--border); padding-top: 1.5rem; }
 #bo_v_title { font-size: 1.375rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 1rem; line-height: 1.35; }
@@ -1083,6 +1124,225 @@ input[type=file]::file-selector-button {
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
+/* ---------- 13-3. 내용관리 (bbs/content.php — company/privacy/provision) ----------
+   DOM 근거: skin/content/basic/content.skin.php (#ctt > header h1 + #ctt_con).
+   게시판그룹(bbs/group.php)은 메인과 같은 .latest_wr 그리드라 §10 이 덮는다 —
+   전용 규칙 없음. */
+/* #container_title 이 같은 제목을 이미 보여준다 → 스킨 h1 은 스크린리더 전용
+   (순정 스킨의 font-size:0 대신 §2 와 같은 clip 은닉 — 접근성상 낫다) */
+#ctt header h1 {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+#ctt_con { padding-block: 0.25rem 1rem; line-height: 1.75; overflow-wrap: anywhere; }
+/* §2 리셋이 걷어낸 문단 마진 복원 — 관리자가 넣는 임의 HTML 본문이다 */
+#ctt_con p { margin-bottom: 1rem; }
+#ctt_con p:last-child { margin-bottom: 0; }
+#ctt_con img { border-radius: calc(var(--radius) - 2px); }
+
+/* ---------- 13-4. bbs 팝업 창 (memo·point·scrap·profile) ----------
+   js/common.js 의 win_*() 가 600~620px 새창으로 연다. head.sub.php 단독
+   레이아웃(#hd/#ft 없음)이라 다크토글은 body 직속 → §12 규칙이 우상단 고정.
+   DOM 근거: skin/member/basic/{memo,memo_form,memo_view,point,scrap,profile}.skin.php */
+.new_win { width: 100%; max-width: 36rem; margin-inline: auto; padding: 1.75rem 1.25rem 2.5rem; }
+/* padding-right: 우상단 고정 다크토글(§12)과 제목 겹침 방지 */
+.new_win #win_title {
+  margin-bottom: 1.25rem; padding-right: 3rem;
+  font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.4;
+}
+/* 쪽지 카운트: 순정 float:right 배지는 우상단 토글과 겹친다 → 제목 아래 줄로 */
+.new_win .win_total {
+  display: block; margin-top: 0.25rem;
+  font-size: 0.8125rem; font-weight: 400; color: var(--muted-foreground);
+}
+/* 받은쪽지/보낸쪽지/쪽지쓰기 탭 — §8 #bo_cate_ul 과 같은 pill 문법 */
+.new_win .win_ul { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 1.25rem; }
+.new_win .win_ul a {
+  display: inline-flex; align-items: center; height: 1.875rem; padding-inline: 0.75rem;
+  border: 1px solid var(--border); border-radius: 999px;
+  font-size: 0.8125rem; color: var(--muted-foreground);
+}
+.new_win .win_ul a:hover { background: var(--accent); color: var(--accent-foreground); text-decoration: none; }
+.new_win .win_ul .selected a {
+  background: var(--primary); color: var(--primary-foreground); border-color: var(--primary);
+}
+.new_win .win_btn { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; }
+/* 안내문(쪽지 보관일수 등) — §12 약관 동의 안내와 같은 muted 박스 문법 */
+.new_win .win_desc {
+  margin-top: 1.25rem; padding: 0.75rem 1rem;
+  background: var(--muted); color: var(--muted-foreground);
+  border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px);
+  font-size: 0.8125rem;
+}
+.new_win .win_desc strong { color: var(--foreground); }
+.new_win .frm_info { font-size: 0.75rem; color: var(--muted-foreground); }
+/* 답장(a.reply_btn 단독 클래스)·보내기(button.btn_b02.reply_btn) — 창의 주
+   액션이라 §6 primary 문법으로 통일. 순정 그대로 btn_b02(secondary)로 두면
+   '창닫기'와 위계가 안 갈려 기각 */
+.new_win .reply_btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 2.25rem; padding-inline: 1rem;
+  background: var(--primary); color: var(--primary-foreground);
+  border: 1px solid transparent; border-radius: calc(var(--radius) - 2px);
+  font-size: 0.875rem; font-weight: 500;
+}
+.new_win .reply_btn:hover { opacity: .9; text-decoration: none; }
+
+/* 포인트 내역 (bbs/point.php) */
+#point .point_all { margin-bottom: 1.25rem; }
+#point .point_all .full_li {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm); font-size: 0.875rem;
+}
+#point .point_all .full_li span { font-size: 1.125rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+#point .point_list { border-top: 1px solid var(--border); }
+#point .point_list li { padding: 0.75rem 0.25rem; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+#point .point_top { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.125rem; }
+#point .point_tit { min-width: 0; overflow-wrap: anywhere; }
+#point .point_num { flex: none; font-weight: 600; font-variant-numeric: tabular-nums; }
+/* 차감만 destructive — 적립에 초록을 들이려면 §1 에 없는 토큰이 필요해 기각 */
+#point .point_use .point_num { color: var(--destructive); }
+#point .point_date1, #point .point_date { margin-right: 0.75rem; font-size: 0.75rem; color: var(--muted-foreground); }
+#point .txt_expired { color: var(--destructive); }
+#point .point_status {
+  display: flex; align-items: center; gap: 0.625rem;
+  font-weight: 600; color: var(--muted-foreground);
+}
+#point .point_status span {
+  color: var(--foreground); font-variant-numeric: tabular-nums;
+}
+#point .point_status span:first-of-type { margin-left: auto; }
+/* 스킨이 창닫기 버튼을 win_btn 없이 직속으로 둔다 → 가운데 정렬만 */
+#point > .btn_close { display: flex; margin: 1.5rem auto 0; }
+
+/* 쪽지 목록 (bbs/memo.php) */
+#memo_list .memo_list { border-top: 1px solid var(--border); }
+#memo_list .memo_list li {
+  position: relative; display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.875rem 0.25rem; border-bottom: 1px solid var(--border);
+}
+/* 자료 없음(li.empty_table)은 §7 규칙이 가운데 정렬한다 — flex 행 배치 해제 */
+#memo_list .memo_list li.empty_table { display: block; }
+#memo_list .profile_big_img { position: relative; flex: none; }
+#memo_list .profile_big_img img {
+  width: 2.75rem; height: 2.75rem; object-fit: cover;
+  border: 1px solid var(--border); border-radius: 999px; background: var(--muted);
+}
+/* 안읽음 표시: 텍스트("안 읽은 쪽지")는 접근성용으로 유지하고 시각적으론 점.
+   순정의 blinker 무한 깜빡임은 시선 강탈 + 모션 민감 사용자에게 유해 → 정적 */
+#memo_list .no_read {
+  position: absolute; right: -0.125rem; bottom: -0.125rem;
+  width: 0.75rem; height: 0.75rem; overflow: hidden; text-indent: -9999px;
+  background: var(--destructive); border: 2px solid var(--background); border-radius: 999px;
+}
+#memo_list .memo_name {
+  flex: 1; min-width: 0; padding-right: 2rem; /* 삭제 버튼 자리 */
+  font-size: 0.875rem; font-weight: 600;
+}
+#memo_list .memo_datetime { margin-left: 0.375rem; font-size: 0.75rem; font-weight: 400; color: var(--muted-foreground); }
+#memo_list .memo_preview { font-weight: 400; }
+#memo_list .memo_preview a {
+  display: block; margin-top: 0.25rem; font-size: 0.875rem;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* 읽은 쪽지: 순정의 회색 배경 행은 카드 톤과 충돌 → 글자만 muted 로 가라앉힌다 */
+#memo_list .memo_list li.read .memo_name { font-weight: 500; }
+#memo_list .memo_list li.read .memo_preview a { color: var(--muted-foreground); }
+#memo_list .memo_del {
+  position: absolute; top: 0.75rem; right: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.75rem; height: 1.75rem; border-radius: calc(var(--radius) - 4px);
+  color: var(--muted-foreground);
+}
+#memo_list .memo_del:hover { background: var(--accent); color: var(--destructive); text-decoration: none; }
+#memo_list .pg_wrap { margin-top: 1.25rem; }
+
+/* 쪽지 쓰기 (bbs/memo_form.php — 캡차는 §13 #captcha 재사용) */
+#memo_write .form_01 ul { display: flex; flex-direction: column; gap: 0.875rem; }
+#memo_write .form_01 li { min-width: 0; }
+#memo_write .form_01 .frm_info { display: inline-block; margin-top: 0.25rem; }
+#memo_write textarea { min-height: 9rem; }
+
+/* 쪽지 보기 (bbs/memo_view.php) */
+#memo_view_contents { border-top: 1px solid var(--border); }
+#memo_view_contents h2 {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+/* 보낸이 줄: 순정의 float + absolute 좌표 배치는 flex 로 치환 — 시각 결과
+   (아바타·이름 좌측, 목록/삭제 버튼 우측)는 같다 */
+.memo_from {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.25rem 0.625rem;
+  padding: 0.875rem 0.25rem; border-bottom: 1px solid var(--border);
+}
+.memo_from .memo_profile img {
+  width: 2.5rem; height: 2.5rem; object-fit: cover;
+  border: 1px solid var(--border); border-radius: 999px; background: var(--muted);
+}
+.memo_from .memo_view_nick { font-size: 0.875rem; font-weight: 600; min-width: 0; }
+.memo_from .memo_view_date { font-size: 0.75rem; color: var(--muted-foreground); }
+.memo_from .list_btn { margin-left: auto; }
+/* 아이콘 단독 버튼(내용은 sound_only) — §6 pill 의 padding 을 정사각으로 */
+.memo_from .memo_op_btn a { width: 2rem; height: 2rem; padding: 0; }
+#memo_view_contents > p {
+  min-height: 8rem; padding: 1rem 0.25rem;
+  font-size: 0.875rem; line-height: 1.75; overflow-wrap: anywhere;
+}
+.memo_btn { display: flex; gap: 0.5rem; padding: 0.625rem 0.25rem; border-bottom: 1px solid var(--border); font-size: 0.8125rem; }
+.memo_btn a { color: var(--muted-foreground); }
+.memo_btn a:hover { color: var(--foreground); }
+.memo_btn .btn_right { margin-left: auto; }
+
+/* 스크랩 (bbs/scrap.php) */
+#scrap > ul { border-top: 1px solid var(--border); }
+#scrap > ul > li {
+  position: relative; padding: 0.875rem 2.25rem 0.875rem 0.25rem;
+  border-bottom: 1px solid var(--border); font-size: 0.875rem;
+}
+#scrap .scrap_tit { display: block; margin-bottom: 0.375rem; font-weight: 500; overflow-wrap: anywhere; }
+/* 게시판명 배지 — §7 .cnt_cmt 문법. 순정의 보라(#ac92ec)는 토큰 밖 색이라 기각 */
+#scrap .scrap_cate {
+  display: inline-flex; align-items: center; height: 1.375rem; padding-inline: 0.5rem;
+  margin-right: 0.5rem;
+  background: var(--secondary); color: var(--secondary-foreground);
+  border: 1px solid var(--border); border-radius: 999px;
+  font-size: 0.6875rem; font-weight: 600;
+}
+#scrap .scrap_cate:hover { background: var(--accent); color: var(--accent-foreground); text-decoration: none; }
+#scrap .scrap_datetime { font-size: 0.75rem; color: var(--muted-foreground); }
+#scrap .scrap_del {
+  position: absolute; top: 0.75rem; right: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.75rem; height: 1.75rem; border-radius: calc(var(--radius) - 4px);
+  color: var(--muted-foreground);
+}
+#scrap .scrap_del:hover { background: var(--accent); color: var(--destructive); text-decoration: none; }
+#scrap .pg_wrap { margin-top: 1.25rem; }
+
+/* 프로필 (bbs/profile.php — 표는 §7 .tbl_head02) */
+#profile .profile_name {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  margin-bottom: 1.25rem; text-align: center; font-size: 1rem; font-weight: 600;
+}
+#profile .my_profile_img img {
+  width: 4.5rem; height: 4.5rem; object-fit: cover;
+  border: 1px solid var(--border); border-radius: 999px; background: var(--muted);
+}
+/* sideview 링크 안의 22px 아바타(#win_title·.profile_name 공용) */
+#profile .profile_img img { border-radius: 999px; background: var(--muted); }
+#profile .new_win_con { margin: 0; }
+#profile section {
+  margin-top: 1.25rem; padding: 1rem 1.25rem;
+  background: var(--card); color: var(--card-foreground);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+#profile section h2 { margin-bottom: 0.375rem; font-size: 0.875rem; font-weight: 600; }
+#profile section p { font-size: 0.875rem; color: var(--muted-foreground); line-height: 1.7; }
+
 /* ---------- 14. 푸터 ---------- */
 #ft {
   flex-shrink: 0; margin-top: 0;
@@ -1224,6 +1484,16 @@ input[type=file]::file-selector-button {
   .mbskin, #login_fs { margin-inline: 0; padding: 1.25rem; border-radius: var(--radius); }
   .pg_page, .pg_current { min-width: 2rem; height: 2rem; font-size: 0.8125rem; }
   .ol, #poll { max-width: none; }
+
+  /* 팝업(§13-4)은 원래 600px 창이라 480 이하는 브라우저 탭 직접 접근일 때다.
+     profile 4열 표는 390 에서 .tbl_wrap 가로 스크롤로 밀리므로 라벨 위·값 아래
+     세로 적층으로 푼다 — 스크롤 표는 정보 4칸짜리엔 과해서 기각 */
+  #profile .tbl_head02 tr, #profile .tbl_head02 th, #profile .tbl_head02 td {
+    display: block; width: 100%;
+  }
+  #profile .tbl_head02 th { border-bottom: 0; padding-bottom: 0; }
+  /* 쪽지보기 보낸이 줄: 좁으면 날짜가 버튼 사이로 꺾여 들어간다 → 전용 줄로 */
+  .memo_from .memo_view_date { flex-basis: 100%; order: 5; margin-top: -0.25rem; }
 }
 
 /* ---------- 17. 인쇄/모션 ---------- */

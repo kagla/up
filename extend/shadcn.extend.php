@@ -10,7 +10,8 @@ if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
  *                      (head.sub.php 가 <head> 안에서 그대로 echo 한다)
  *  - 토글 버튼       : run_event('tail_sub') 훅
  *
- * 1차 적용 범위: 메인(index) + 게시판(bbs/board.php). 그 외는 순정 유지.
+ * 적용 범위: 메인(index) + bbs/board.php + shadcn_in_scope() 의 bbs 화이트리스트.
+ * 그 외(관리자·쇼핑몰 포함)는 순정 유지.
  */
 
 define('G5_SHADCN_ENABLE', true);
@@ -57,6 +58,16 @@ function shadcn_in_scope()
         'register.php', 'register_form.php',
         'write.php', 'password_lost.php',
         'search.php', 'new.php', 'faq.php', 'current_connect.php',
+        // 2R: 풀 레이아웃 — 내용관리(회사소개·개인정보·이용약관)와 게시판그룹.
+        // group.php DOM 은 메인과 같은 .latest_wr 카드 그리드라 §10 이 그대로 덮는다.
+        'content.php', 'group.php',
+        // 2R: login.php 와 같은 head.sub.php 단독 .mbskin 페이지 (§12)
+        'member_confirm.php', 'password.php',
+        // 2R: win_*() 600px 팝업 — head.sub.php 단독 .new_win 레이아웃 (§13-4)
+        'profile.php', 'point.php', 'scrap.php',
+        'memo.php', 'memo_form.php', 'memo_view.php',
+        // member_leave.php 는 넣지 않는다 — UI 없이 alert() 만 출력하는 액션
+        // 엔드포인트다. 탈퇴 확인 UI 는 member_confirm.php?url=member_leave.php
     );
     if (preg_match('~/bbs/[^/]+$~', $script) && in_array($base, $bbs_whitelist, true)) {
         return $scope = true;
