@@ -669,6 +669,10 @@ a.btn_b01, a.btn_b02, a.btn_admin, input[type=submit], button[type=submit] {
   border-top: 1px solid var(--border);
   font-size: 0.8125rem;
 }
+/* G5_SET_DEVICE='pc' 라 모바일 트리로 갈 수 없는데, 테마 tail.php 는
+   G5_DEVICE_BUTTON_DISPLAY 를 보지 않고 링크를 무조건 출력한다.
+   눌러도 아무 일 없는 죽은 링크이므로 감춘다. */
+#ft a[href*="device=mobile"] { display: none; }
 #ft_wr {
   padding-block: 2.5rem 1.5rem;
   display: grid; gap: 2rem;
